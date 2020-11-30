@@ -98,17 +98,11 @@ public:
 
 private:
     std::vector<std::vector<double>> graph;
-    void printGraph();
     int getNextVertex(std::vector<double> distances, std::vector<bool> vertMap) const;
 };
 
 Graph::Graph(size_t n) {
     graph = std::vector<std::vector<double>>(n,std::vector<double>(n,0));
-//    for (const auto& l : graph){
-//        for (auto d : l)
-//            std::cout << d << " ";
-//        std::cout << std::endl;
-//    }
 }
 
 Graph::Graph(const std::vector<Edge> &edges) {
@@ -124,11 +118,6 @@ Graph::Graph(const std::vector<Edge> &edges) {
         graph[e.u][e.v] = e.weight;
         graph[e.v][e.u] = e.weight;
     }
-//    for (const auto& l : graph){
-//        for (auto d : l)
-//            std::cout << d << " ";
-//        std::cout << std::endl;
-//    }
 
 }
 
@@ -235,17 +224,7 @@ Graph Graph::SpannigTree() const {
         visitedMap[res.v] = true;
         results.push_back(res);
     }
-    Graph res(results);
-    res.printGraph();
     return Graph(results);
 }
 
-void Graph::printGraph() {
-    for (int i = 0; i < graph.size(); ++i) {
-        for (int j = 0; j < graph[i].size(); ++j) {
-            std::cout << graph[i][j] << " ";
-        }
-        std::cout << "\n";
-    }
-}
 
