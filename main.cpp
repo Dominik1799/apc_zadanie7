@@ -18,9 +18,11 @@ int main() {
     p.push_back(e5);
     p.push_back(e6);
     Graph varname(p);
-    std::vector<int> penis = varname.Path(2,2).value();
+    std::vector<int> penis = varname.Path(0,5).value();
     for (int i = 0; i < penis.size(); ++i) {
         std::cout << penis[i] << "\n";
     }
+
+    auto tree = varname.SpannigTree();
     return 0;
 }

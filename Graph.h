@@ -5,7 +5,7 @@
 #include <algorithm>
 
 // define 1 if you want to implement it
-#define BONUS 0
+#define BONUS 1
 
 // Edge can be constructed with syntax
 // Edge e{ 1, 5, 1.89 };
@@ -98,6 +98,7 @@ public:
 
 private:
     std::vector<std::vector<double>> graph;
+    void printGraph();
     int getNextVertex(std::vector<double> distances, std::vector<bool> vertMap) const;
 };
 
@@ -111,14 +112,14 @@ Graph::Graph(size_t n) {
 }
 
 Graph::Graph(const std::vector<Edge> &edges) {
-    size_t maxVert = 0;
+    int maxVert = 0;
     for (auto& e : edges) {
         if (e.u == e.v || e.weight <= 0)
             throw GraphException();
         maxVert = e.u > maxVert ? e.u : maxVert;
         maxVert = e.v > maxVert ? e.v : maxVert;
     }
-    graph = std::vector<std::vector<double>>(maxVert+1,std::vector<double>(maxVert+1,0));
+    graph = std::vector<std::vector<double>>(static_cast<size_t>(maxVert+1),std::vector<double>(static_cast<size_t>(maxVert+1),0));
     for (auto& e : edges) {
         graph[e.u][e.v] = e.weight;
         graph[e.v][e.u] = e.weight;
@@ -207,5 +208,44 @@ int Graph::getNextVertex(std::vector<double> distances, std::vector<bool> vertMa
         }
     }
     return minIndex;
+}
+
+Graph Graph::SpannigTree() const {
+    std::vector<bool> visitedMap(graph.size(), false);
+    std::vector<int> visitedNodes;
+    visitedMap[0] = true;
+    visitedNodes.push_back(0);
+    std::vector<Edge> results;
+    while (true) {
+        Edge res{0,0,0};
+        if (visitedNodes.size() == graph.size())
+            break;
+        double minimalWeight = std::numeric_limits<double>::max();
+        for (auto node : visitedNodes) {
+            for (int j = 0; j < graph.size(); j++) {
+                if (!visitedMap[j] && graph[node][j] != 0 && graph[node][j] < minimalWeight) {
+                    minimalWeight = graph[node][j];
+                    res.u = node;
+                    res.v = j;
+                    res.weight = minimalWeight;
+                }
+            }
+        }
+        visitedNodes.push_back(res.v);
+        visitedMap[res.v] = true;
+        results.push_back(res);
+    }
+    Graph res(results);
+    res.printGraph();
+    return Graph(results);
+}
+
+void Graph::printGraph() {
+    for (int i = 0; i < graph.size(); ++i) {
+        for (int j = 0; j < graph[i].size(); ++j) {
+            std::cout << graph[i][j] << " ";
+        }
+        std::cout << "\n";
+    }
 }
 
