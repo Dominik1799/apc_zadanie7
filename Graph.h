@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <optional>
+#include <algorithm>
 
 // define 1 if you want to implement it
 #define BONUS 0
@@ -97,15 +98,16 @@ public:
 
 private:
     std::vector<std::vector<double>> graph;
+    int getNextVertex(std::vector<double> distances, std::vector<bool> vertMap) const;
 };
 
 Graph::Graph(size_t n) {
     graph = std::vector<std::vector<double>>(n,std::vector<double>(n,0));
-    for (const auto& l : graph){
-        for (auto d : l)
-            std::cout << d << " ";
-        std::cout << std::endl;
-    }
+//    for (const auto& l : graph){
+//        for (auto d : l)
+//            std::cout << d << " ";
+//        std::cout << std::endl;
+//    }
 }
 
 Graph::Graph(const std::vector<Edge> &edges) {
@@ -121,11 +123,11 @@ Graph::Graph(const std::vector<Edge> &edges) {
         graph[e.u][e.v] = e.weight;
         graph[e.v][e.u] = e.weight;
     }
-    for (const auto& l : graph){
-        for (auto d : l)
-            std::cout << d << " ";
-        std::cout << std::endl;
-    }
+//    for (const auto& l : graph){
+//        for (auto d : l)
+//            std::cout << d << " ";
+//        std::cout << std::endl;
+//    }
 
 }
 
@@ -163,13 +165,47 @@ bool Graph::Connected(int u, int v) const noexcept {
 }
 
 std::optional<std::vector<int>> Graph::Path(int u, int v) const {
-    if (u >= graph.size() || v >= graph.size() || graph[u][v] == 0)
+    if (u >= graph.size() || v >= graph.size())
         return std::nullopt;
+    std::vector<bool> vertMap(graph.size(), false);
+    std::vector<double> vertDistance(graph.size(),std::numeric_limits<double>::max());
+    vertDistance[u] = 0;
+    std::vector<int> backTrack(graph.size(),-1);
     std::vector<int> result;
-    std::vector<bool> vertMap(graph.size(), false); // sptSet
-    std::vector<double> vertDistance(graph.size(),std::numeric_limits<double>::max()); // dist
-    std::vector<int> backTrack(graph.size(),0);
-    while (tr)
+    backTrack[u] = u;
+    while (true) {
+        int currVert = getNextVertex(vertDistance, vertMap);
+        if (currVert == v)
+            break;
+        vertMap[currVert] = true;
+        for (size_t i = 0; i < graph.size(); i++){
+            if (graph[currVert][i] != 0 && !vertMap[i] && i != currVert
+                && vertDistance[i] > vertDistance[currVert] + graph[currVert][i]){
+                vertDistance[i] = vertDistance[currVert] + graph[currVert][i];
+                backTrack[i] = currVert;
+            }
+        }
+    }
+    int endPoint = v;
+    while (true) {
+        result.push_back(endPoint);
+        if (endPoint == u)
+            break;
+        endPoint = backTrack[endPoint];
+    }
+    std::reverse(result.begin(),result.end());
     return result;
+}
+
+int Graph::getNextVertex(std::vector<double> distances, std::vector<bool> vertMap) const {
+    double currentMin = std::numeric_limits<double>::max();
+    int minIndex;
+    for(int i = 0; i < distances.size(); i++){
+        if (currentMin > distances[i] && !vertMap[i]){
+            currentMin = distances[i];
+            minIndex = i;
+        }
+    }
+    return minIndex;
 }
 
